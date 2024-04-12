@@ -14,14 +14,22 @@ type Request struct {
 	Body    string
 }
 
-func parseRequest(conn *net.TCPConn) (*Request, error) {
+func readLine(conn *net.TCPConn) ([]byte, error) {
 	input := make([]byte, 1024)
 	length, err := conn.Read(input)
 	if err != nil {
 		return nil, err
 	}
 	input = input[:length]
-	fmt.Println(string(input))
+	fmt.Println(length, string(input))
+	return input, err
+}
+
+func parseRequest(conn *net.TCPConn) (*Request, error) {
+	input, err := readLine(conn)
+	if err != nil {
+		return nil, err
+	}
 	lines := strings.Split(string(input), "\r\n")
 	if len(lines) < 3 {
 		return nil, fmt.Errorf("invalid request")
