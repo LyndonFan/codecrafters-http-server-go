@@ -44,11 +44,14 @@ func handleRequest(conn net.Conn) error {
 	}
 	if len(request.Path) >= 6 && request.Path[:6] == "/echo/" {
 		response.Body = []byte(request.Path[6:])
-	} else if _, exists := request.Headers["User-Agent"]; exists {
-		response.Body = []byte(request.Headers["User-Agent"])
 	} else if request.Path != "/" {
-		response.StatusCode = 404
-		response.StatusMessage = "Not Found"
+		userAgent, exists := headers["User-Agent"]
+		if request.Path == "/user-agent" && exists {
+			response.Body = []byte(userAgent)
+		} else {
+			response.StatusCode = 404
+			response.StatusMessage = "Not Found"
+		}
 	}
 	headers["Content-Length"] = fmt.Sprintf("%d", len(response.Body))
 	conn.Write(response.Bytes())
