@@ -33,6 +33,7 @@ func handleRequest(conn net.Conn) error {
 		fmt.Printf("Error: %v\n", err)
 		return err
 	}
+	fmt.Println(request)
 	headers := map[string]string{}
 	headers["Content-Type"] = "text/plain"
 	response := Response{
@@ -44,16 +45,14 @@ func handleRequest(conn net.Conn) error {
 	}
 	if len(request.Path) >= 6 && request.Path[:6] == "/echo/" {
 		response.Body = []byte(request.Path[6:])
+	} else if request.Path == "/user-agent" {
+		response.Body = []byte(request.Headers["User-Agent"])
 	} else if request.Path != "/" {
-		userAgent, exists := headers["User-Agent"]
-		if request.Path == "/user-agent" && exists {
-			response.Body = []byte(userAgent)
-		} else {
-			response.StatusCode = 404
-			response.StatusMessage = "Not Found"
-		}
+		response.StatusCode = 404
+		response.StatusMessage = "Not Found"
 	}
 	headers["Content-Length"] = fmt.Sprintf("%d", len(response.Body))
+	fmt.Println(len(response.Bytes()), string(response.Bytes()))
 	conn.Write(response.Bytes())
 	return nil
 }
