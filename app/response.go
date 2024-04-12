@@ -23,8 +23,6 @@ func (resp *Response) Bytes() []byte {
 	for k, v := range resp.Headers {
 		lines = append(lines, fmt.Sprintf("%s: %s", k, v))
 	}
-	if len(resp.Body) > 0 {
-		lines = append(lines, "", string(resp.Body))
-	}
+	lines = append(lines, "", string(resp.Body))
 	return []byte(strings.Join(lines, NEWLINE))
 }
