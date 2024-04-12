@@ -14,7 +14,7 @@ type Request struct {
 	Body    string
 }
 
-func readLine(conn *net.TCPConn) ([]byte, error) {
+func parseRequest(conn *net.TCPConn) (*Request, error) {
 	input := make([]byte, 1024)
 	length, err := conn.Read(input)
 	if err != nil {
@@ -22,14 +22,6 @@ func readLine(conn *net.TCPConn) ([]byte, error) {
 	}
 	input = input[:length]
 	fmt.Println(length, string(input))
-	return input, err
-}
-
-func parseRequest(conn *net.TCPConn) (*Request, error) {
-	input, err := readLine(conn)
-	if err != nil {
-		return nil, err
-	}
 	lines := strings.Split(string(input), "\r\n")
 	if len(lines) < 3 {
 		return nil, fmt.Errorf("invalid request")
@@ -42,7 +34,7 @@ func parseRequest(conn *net.TCPConn) (*Request, error) {
 	path := firstLine[1]
 	version := firstLine[2]
 	headers := make(map[string]string)
-	for i := 1; i < len(lines)-1; i++ {
+	for i := 1; i < len(lines)-2; i++ {
 		line := strings.Split(lines[i], ": ")
 		if len(line) < 2 {
 			return nil, fmt.Errorf("invalid request, line %s isn't a valid header", line)
