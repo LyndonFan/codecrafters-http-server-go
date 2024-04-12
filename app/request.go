@@ -20,6 +20,7 @@ func parseRequest(conn *net.TCPConn) (*Request, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(string(input))
 	lines := strings.Split(string(input), "\r\n")
 	if len(lines) < 3 {
 		return nil, fmt.Errorf("invalid request")
