@@ -14,7 +14,7 @@ type Request struct {
 	Body    string
 }
 
-func parseRequest(conn *net.TCPConn) (*Request, error) {
+func parseRequest(conn net.Conn) (*Request, error) {
 	input := make([]byte, 1024)
 	length, err := conn.Read(input)
 	if err != nil {
@@ -22,7 +22,7 @@ func parseRequest(conn *net.TCPConn) (*Request, error) {
 	}
 	input = input[:length]
 	fmt.Println(length, string(input))
-	lines := strings.Split(string(input), "\r\n")
+	lines := strings.Split(string(input), NEWLINE)
 	if len(lines) < 3 {
 		return nil, fmt.Errorf("invalid request")
 	}

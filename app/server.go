@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+const NEWLINE string = "\r\n"
+
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
@@ -26,22 +28,22 @@ func main() {
 }
 
 func handleRequest(conn net.Conn) error {
-	tcpConn, ok := conn.(*net.TCPConn)
-	if !ok {
-		return fmt.Errorf("connection is not a TCP connection")
-	}
-	request, err := parseRequest(tcpConn)
+	request, err := parseRequest(conn)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return err
 	}
-	var response string
-	if request.Method == "GET" && request.Path == "/" {
-		response = "HTTP/1.1 200 OK\r\n\r\n"
-	} else {
-		response = "HTTP/1.1 404 Not Found\r\n\r\n"
+	returnString := request.Path[6:]
+	headers := map[string]string{}
+	headers["Content-Type"] = "text/plain"
+	headers["Content-Length"] = fmt.Sprintf("%d", len(returnString))
+	response := Response{
+		Version:       request.Version,
+		StatusCode:    200,
+		StatusMessage: "OK",
+		Headers:       headers,
+		Body:          []byte(returnString),
 	}
-	tcpConn.Write([]byte(response))
-	tcpConn.CloseWrite()
+	conn.Write(response.Bytes())
 	return nil
 }
