@@ -33,7 +33,6 @@ func handleRequest(conn net.Conn) error {
 		fmt.Printf("Error: %v\n", err)
 		return err
 	}
-	defer conn.Close()
 	headers := map[string]string{}
 	headers["Content-Type"] = "text/plain"
 	var returnString string
