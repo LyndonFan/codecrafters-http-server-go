@@ -32,6 +32,7 @@ func handleRequest(conn net.Conn) error {
 	}
 	request, err := parseRequest(tcpConn)
 	if err != nil {
+		fmt.Printf("Error: %v\n", err)
 		return err
 	}
 	var response string
