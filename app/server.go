@@ -35,18 +35,20 @@ func handleRequest(conn net.Conn) error {
 	}
 	headers := map[string]string{}
 	headers["Content-Type"] = "text/plain"
-	var returnString string
-	if len(request.Path) >= 6 && request.Path[:6] == "/echo/" {
-		returnString = request.Path[6:]
-	}
-	headers["Content-Length"] = fmt.Sprintf("%d", len(returnString))
 	response := Response{
 		Version:       request.Version,
 		StatusCode:    200,
 		StatusMessage: "OK",
 		Headers:       headers,
-		Body:          []byte(returnString),
+		Body:          []byte(""),
 	}
+	if len(request.Path) >= 6 && request.Path[:6] == "/echo/" {
+		response.Body = []byte(request.Path[6:])
+	} else if request.Path != "/" {
+		response.StatusCode = 404
+		response.StatusMessage = "Not Found"
+	}
+	headers["Content-Length"] = fmt.Sprintf("%d", len(response.Body))
 	conn.Write(response.Bytes())
 	return nil
 }
