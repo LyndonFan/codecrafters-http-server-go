@@ -31,8 +31,17 @@ func handleRequest(conn net.Conn) error {
 	if !ok {
 		return fmt.Errorf("connection is not a TCP connection")
 	}
-	responseMessage := "HTTP/1.1 200 OK\r\n\r\n"
-	tcpConn.Write([]byte(responseMessage))
+	request, err := parseRequest(tcpConn)
+	if err != nil {
+		return err
+	}
+	var response string
+	if request.Method == "GET" && request.Path == "/" {
+		response = "HTTP/1.1 200 OK\r\n\r\n"
+	} else {
+		response = "HTTP/1.1 404 Not Found\r\n\r\n"
+	}
+	tcpConn.Write([]byte(response))
 	tcpConn.CloseWrite()
 	return nil
 }
