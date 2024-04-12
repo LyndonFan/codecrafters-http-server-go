@@ -48,5 +48,11 @@ func handleRequest(conn net.Conn) error {
 		Body:          []byte(returnString),
 	}
 	conn.Write(response.Bytes())
+	err = conn.Close()
+	if err != nil {
+		fmt.Printf("Error when closing: %v\n", err)
+	} else {
+		fmt.Println("Closed successfully")
+	}
 	return nil
 }
