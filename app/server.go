@@ -17,7 +17,7 @@ func main() {
 		fmt.Println("Failed to bind to port 4221")
 		os.Exit(1)
 	}
-
+	defer l.Close()
 	for {
 		conn, err := l.Accept()
 		if err != nil {
@@ -33,6 +33,7 @@ func handleRequest(conn net.Conn) error {
 		fmt.Printf("Error: %v\n", err)
 		return err
 	}
+	defer conn.Close()
 	headers := map[string]string{}
 	headers["Content-Type"] = "text/plain"
 	var returnString string
@@ -48,11 +49,5 @@ func handleRequest(conn net.Conn) error {
 		Body:          []byte(returnString),
 	}
 	conn.Write(response.Bytes())
-	err = conn.Close()
-	if err != nil {
-		fmt.Printf("Error when closing: %v\n", err)
-	} else {
-		fmt.Println("Closed successfully")
-	}
 	return nil
 }
