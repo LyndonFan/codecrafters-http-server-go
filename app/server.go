@@ -36,7 +36,7 @@ func handleRequest(conn net.Conn) error {
 	headers := map[string]string{}
 	headers["Content-Type"] = "text/plain"
 	var returnString string
-	if request.Path[6:] == "/echo/" {
+	if request.Path[:6] == "/echo/" {
 		returnString = request.Path[6:]
 	}
 	headers["Content-Length"] = fmt.Sprintf("%d", len(returnString))
