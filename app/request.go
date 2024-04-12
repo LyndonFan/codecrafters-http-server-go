@@ -15,11 +15,12 @@ type Request struct {
 }
 
 func parseRequest(conn *net.TCPConn) (*Request, error) {
-	input := make([]byte, 0, 1024)
-	_, err := conn.Read(input)
+	input := make([]byte, 1024)
+	length, err := conn.Read(input)
 	if err != nil {
 		return nil, err
 	}
+	input = input[:length]
 	fmt.Println(string(input))
 	lines := strings.Split(string(input), "\r\n")
 	if len(lines) < 3 {
