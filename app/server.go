@@ -16,9 +16,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	_, err = l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+	for {
+		conn, err = l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		go handleRequest(conn)
 	}
+}
+
+func handleRequest(conn net.Conn) error {
+	tcpConn, ok := conn.(*net.TCPConn)
+	if !ok {
+		return fmt.Errorf("connection is not a TCP connection")
+	}
+	responseMessage := "HTTP/1.1 200 OK\r\n\r\n"
+	tcpConn.Write([]byte(responseMessage))
+	tcpConn.CloseWrite()
+	return nil
 }
