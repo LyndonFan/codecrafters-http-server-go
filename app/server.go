@@ -20,12 +20,13 @@ func main() {
 		directory = args[2]
 		files, _err := os.ReadDir(directory)
 		if _err != nil {
-			fmt.Println("Files in directory " + directory)
+			fmt.Println("Files in directory" + directory)
 			for _, f := range files {
 				fmt.Println(f.Name())
 			}
 		}
 	}
+	fmt.Printf("directory = \"%s\"\n", directory)
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
 		fmt.Println("Failed to bind to port 4221")
@@ -83,8 +84,9 @@ func handleRequest(request *Request, directory string) Response {
 		response.Body = []byte(strings.Join(pathFields[1:], "/"))
 	case len(pathFields) >= 2 && pathFields[0] == "files":
 		fullPath := filepath.Join(append([]string{directory}, pathFields[1:]...)...)
+		fmt.Printf("Trying to find %s\n", fullPath)
 		content, err := os.ReadFile(fullPath)
-		if os.IsExist(err) {
+		if err == nil {
 			response.Body = content
 			response.Headers["Content-Type"] = "application/octet-stream"
 		} else {
