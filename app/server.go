@@ -13,11 +13,11 @@ const NEWLINE string = "\r\n"
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
-	argsWithoutProgram := os.Args[1:]
-	fmt.Println(os.Args, argsWithoutProgram)
+	args := os.Args
+	fmt.Println(args)
 	directory := "" // leave empty if not supplied with "--directory" argument
-	if len(argsWithoutProgram) == 2 && argsWithoutProgram[0] == "--directory" {
-		directory = argsWithoutProgram[1]
+	if len(args) >= 3 && args[1] == "--directory" {
+		directory = args[2]
 		files, _err := os.ReadDir(directory)
 		if _err != nil {
 			fmt.Println("Files in directory " + directory)
