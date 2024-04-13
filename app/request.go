@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net"
 	"strings"
 )
 
@@ -14,14 +13,8 @@ type Request struct {
 	Body    string
 }
 
-func parseRequest(conn net.Conn) (*Request, error) {
-	input := make([]byte, 1024)
-	length, err := conn.Read(input)
-	if err != nil {
-		return nil, err
-	}
-	input = input[:length]
-	fmt.Println(length, string(input))
+func parseRequest(input []byte) (*Request, error) {
+	fmt.Println(len(input), string(input))
 	lines := strings.Split(string(input), NEWLINE)
 	if len(lines) < 3 {
 		return nil, fmt.Errorf("invalid request")
@@ -35,6 +28,9 @@ func parseRequest(conn net.Conn) (*Request, error) {
 	version := firstLine[2]
 	headers := make(map[string]string)
 	for i := 1; i < len(lines)-2; i++ {
+		if lines[i] == "" {
+			continue
+		}
 		line := strings.Split(lines[i], ": ")
 		if len(line) < 2 {
 			return nil, fmt.Errorf("invalid request, line %s isn't a valid header", line)

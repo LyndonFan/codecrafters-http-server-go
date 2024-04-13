@@ -32,7 +32,13 @@ func handleRequest(conn net.Conn) error {
 	if !ok {
 		return fmt.Errorf("expected a TCP connection, but failed to convert it")
 	}
-	request, err := parseRequest(tcpConn)
+	input := make([]byte, 1024)
+	length, err := conn.Read(input)
+	if err != nil {
+		return err
+	}
+	input = input[:length]
+	request, err := parseRequest(input)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return err
