@@ -16,6 +16,9 @@ func main() {
 	directory := "" // leave empty if not supplied with "--directory" argument
 	if len(argsWithoutProgram) == 2 && argsWithoutProgram[0] == "--directory" {
 		directory = argsWithoutProgram[1]
+		if directory[len(directory)-1] == '/' {
+			directory = directory[:len(directory)-1]
+		}
 	}
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
