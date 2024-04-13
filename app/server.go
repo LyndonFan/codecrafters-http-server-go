@@ -70,10 +70,10 @@ func handleRequest(request *Request, directory string) Response {
 		// pass
 	case request.Path == "/user-agent":
 		response.Body = []byte(request.Headers["User-Agent"])
-	case len(pathFields) == 2 && pathFields[0] == "echo":
-		response.Body = []byte(pathFields[1])
-	case len(pathFields) == 2 && pathFields[0] == "files":
-		fullPath := fmt.Sprintf("%s/%s", directory, pathFields[1])
+	case len(pathFields) >= 2 && pathFields[0] == "echo":
+		response.Body = []byte(strings.Join(pathFields[1:], "/"))
+	case len(pathFields) >= 2 && pathFields[0] == "files":
+		fullPath := fmt.Sprintf("%s/%s", directory, strings.Join(pathFields[1:], "/"))
 		content, err := os.ReadFile(fullPath)
 		if os.IsExist(err) {
 			response.Body = content
