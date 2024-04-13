@@ -28,7 +28,11 @@ func main() {
 }
 
 func handleRequest(conn net.Conn) error {
-	request, err := parseRequest(conn)
+	tcpConn, ok := conn.(*net.TCPConn)
+	if !ok {
+		return fmt.Errorf("expected a TCP connection, but failed to convert it")
+	}
+	request, err := parseRequest(tcpConn)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return err
@@ -52,6 +56,7 @@ func handleRequest(conn net.Conn) error {
 	}
 	headers["Content-Length"] = fmt.Sprintf("%d", len(response.Body))
 	fmt.Println(len(response.Bytes()), string(response.Bytes()))
-	conn.Write(response.Bytes())
+	tcpConn.Write(response.Bytes())
+	tcpConn.CloseWrite()
 	return nil
 }
