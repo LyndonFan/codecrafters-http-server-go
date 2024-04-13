@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -16,8 +17,12 @@ func main() {
 	directory := "" // leave empty if not supplied with "--directory" argument
 	if len(argsWithoutProgram) == 2 && argsWithoutProgram[0] == "--directory" {
 		directory = argsWithoutProgram[1]
-		if directory[len(directory)-1] == '/' {
-			directory = directory[:len(directory)-1]
+		files, _err := os.ReadDir(directory)
+		if _err != nil {
+			fmt.Println("Files in directory " + directory)
+			for _, f := range files {
+				fmt.Println(f.Name())
+			}
 		}
 	}
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
@@ -76,7 +81,7 @@ func handleRequest(request *Request, directory string) Response {
 	case len(pathFields) >= 2 && pathFields[0] == "echo":
 		response.Body = []byte(strings.Join(pathFields[1:], "/"))
 	case len(pathFields) >= 2 && pathFields[0] == "files":
-		fullPath := fmt.Sprintf("%s/%s", directory, strings.Join(pathFields[1:], "/"))
+		fullPath := filepath.Join(append([]string{directory}, pathFields[1:]...)...)
 		content, err := os.ReadFile(fullPath)
 		if os.IsExist(err) {
 			response.Body = content
