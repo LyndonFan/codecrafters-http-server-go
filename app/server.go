@@ -84,14 +84,25 @@ func handleRequest(request *Request, directory string) Response {
 		response.Body = []byte(strings.Join(pathFields[1:], "/"))
 	case len(pathFields) >= 2 && pathFields[0] == "files":
 		fullPath := filepath.Join(append([]string{directory}, pathFields[1:]...)...)
-		fmt.Printf("Trying to find %s\n", fullPath)
-		content, err := os.ReadFile(fullPath)
-		if err == nil {
-			response.Body = content
-			response.Headers["Content-Type"] = "application/octet-stream"
-		} else {
-			response.StatusCode = 404
-			response.StatusMessage = "Not Found"
+		if request.Method == "GET" {
+			fmt.Printf("Trying to find %s\n", fullPath)
+			content, err := os.ReadFile(fullPath)
+			if err == nil {
+				response.Body = content
+				response.Headers["Content-Type"] = "application/octet-stream"
+			} else {
+				response.StatusCode = 404
+				response.StatusMessage = "Not Found"
+			}
+		} else if request.Method == "POST" {
+			err := os.WriteFile(fullPath, []byte(request.Body), 0644)
+			if err == nil {
+				response.StatusCode = 201
+				response.StatusMessage = "No Content"
+			} else {
+				response.StatusCode = 400
+				response.StatusMessage = "Internal Server Error"
+			}
 		}
 	default:
 		response.StatusCode = 404
