@@ -14,6 +14,7 @@ func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 	argsWithoutProgram := os.Args[1:]
+	fmt.Println(os.Args, argsWithoutProgram)
 	directory := "" // leave empty if not supplied with "--directory" argument
 	if len(argsWithoutProgram) == 2 && argsWithoutProgram[0] == "--directory" {
 		directory = argsWithoutProgram[1]
