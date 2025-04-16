@@ -67,8 +67,9 @@ func handleConnection(conn net.Conn, directory string) error {
 func handleRequest(request *Request, directory string) Response {
 	headers := map[string]string{}
 	headers["Content-Type"] = "text/plain"
-	if encoding, hasEncoding := getEncoding(request); hasEncoding {
-		headers["Content-Encoding"] = encoding
+	encodings := getEncodings(request)
+	if len(encodings) > 0 {
+		headers["Content-Encoding"] = strings.Join(encodings, ", ")
 	}
 	response := Response{
 		Version:       request.Version,
