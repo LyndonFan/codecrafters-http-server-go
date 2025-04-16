@@ -101,7 +101,7 @@ func handleRequest(request *Request, directory string) Response {
 			err := os.WriteFile(fullPath, []byte(request.Body), 0644)
 			if err == nil {
 				response.StatusCode = 201
-				response.StatusMessage = "No Content"
+				response.StatusMessage = "Created"
 			} else {
 				response.StatusCode = 400
 				response.StatusMessage = "Internal Server Error"
