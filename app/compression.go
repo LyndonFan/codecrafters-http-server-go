@@ -1,6 +1,10 @@
 package main
 
-import "strings"
+import (
+	"bytes"
+	"compress/gzip"
+	"strings"
+)
 
 var ValidContentEncodings = map[string]bool{
 	"br": true,
@@ -27,4 +31,12 @@ func getEncodings(request *Request) []string {
 		}
 	}
 	return res
+}
+
+func gzipContent(bs []byte) []byte {
+	var b bytes.Buffer
+	w := gzip.NewWriter(&b)
+	w.Write(bs)
+	w.Close()
+	return b.Bytes()
 }

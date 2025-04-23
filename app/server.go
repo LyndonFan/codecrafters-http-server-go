@@ -86,6 +86,11 @@ func handleRequest(request *Request, directory string) Response {
 		response.Body = []byte(request.Headers["User-Agent"])
 	case len(pathFields) >= 2 && pathFields[0] == "echo":
 		response.Body = []byte(strings.Join(pathFields[1:], "/"))
+		if len(encodings) > 0 {
+			// need to create new slice -- replacing in place doesn't work
+			res := gzipContent(response.Body)
+			response.Body = res
+		}
 	case len(pathFields) >= 2 && pathFields[0] == "files":
 		fullPath := filepath.Join(append([]string{directory}, pathFields[1:]...)...)
 		if request.Method == "GET" {
