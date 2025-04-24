@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const NEWLINE string = "\r\n"
@@ -47,20 +48,26 @@ func handleConnection(conn net.Conn, directory string) error {
 	if !ok {
 		return fmt.Errorf("expected a TCP connection, but failed to convert it")
 	}
-	input := make([]byte, 1024)
-	length, err := conn.Read(input)
-	if err != nil {
-		return err
+	defer func () {
+		fmt.Println("Closing connection with local address", tcpConn.LocalAddr())
+		tcpConn.Close()
+	} ()
+	for {
+		input := make([]byte, 1024)
+		length, err := conn.Read(input)
+		if err != nil {
+			time.Sleep(time.Second)
+			continue
+		}
+		input = input[:length]
+		request, err := parseRequest(input)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return err
+		}
+		response := handleRequest(request, directory)
+		_, err = tcpConn.Write(response.Bytes())
 	}
-	input = input[:length]
-	request, err := parseRequest(input)
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		return err
-	}
-	response := handleRequest(request, directory)
-	tcpConn.Write(response.Bytes())
-	tcpConn.CloseWrite()
 	return nil
 }
 
