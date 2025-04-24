@@ -52,7 +52,8 @@ func handleConnection(conn net.Conn, directory string) error {
 		fmt.Println("Closing connection with local address", tcpConn.LocalAddr())
 		tcpConn.Close()
 	} ()
-	for {
+	keepAlive := true
+	for keepAlive {
 		input := make([]byte, 1024)
 		length, err := conn.Read(input)
 		if err != nil {
@@ -65,15 +66,21 @@ func handleConnection(conn net.Conn, directory string) error {
 			fmt.Printf("Error: %v\n", err)
 			return err
 		}
-		response := handleRequest(request, directory)
+		response, kp := handleRequest(request, directory)
+		keepAlive = kp
 		_, err = tcpConn.Write(response.Bytes())
 	}
 	return nil
 }
 
-func handleRequest(request *Request, directory string) Response {
+func handleRequest(request *Request, directory string) (Response, bool) {
 	headers := map[string]string{}
 	headers["Content-Type"] = "text/plain"
+	keepAlive := true
+	if request.Headers["Connection"] == "close" {
+		headers["Connection"] = "close"
+		keepAlive = false
+	}
 	encodings := getEncodings(request)
 	if len(encodings) > 0 {
 		headers["Content-Encoding"] = strings.Join(encodings, ", ")
@@ -126,5 +133,5 @@ func handleRequest(request *Request, directory string) Response {
 	}
 	headers["Content-Length"] = fmt.Sprintf("%d", len(response.Body))
 	fmt.Println(len(response.Bytes()), string(response.Bytes()))
-	return response
+	return response, keepAlive
 }
